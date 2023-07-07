@@ -1,6 +1,5 @@
 import yfinance as yf
 import pandas as pd
-import random
 
 # Define the stock symbols
 stocks = ["NVO", "AAPL", "MSFT", "TSLA", "^GSPC"]
@@ -22,4 +21,4 @@ filename = "historical_prices.xlsx"
 
 
 # Save DataFrame to Excel file
-historical_prices.to_excel(filename, index=False)
+historical_prices.to_excel(filename, index=True)
