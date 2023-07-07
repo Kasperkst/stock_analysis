@@ -18,7 +18,7 @@ historical_prices = pd.concat(dfs)
 
 # Define the file path
 #file_path = r"C:\Users\kaspe\Desktop\python_projects\financial_risk\historical_prices.xlsx"
-filename = "historical_prices2.xlsx"
+filename = "historical_prices.xlsx"
 
 
 # Save DataFrame to Excel file
