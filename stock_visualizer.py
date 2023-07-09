@@ -57,14 +57,13 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 '''*****************************************************************************************************
 Retrieving the data
 *****************************************************************************************************'''
+
+
 df = pd.read_excel('historical_prices.xlsx')
-'''
-df = pd.DataFrame({
-    'Date': pd.date_range(start='1/1/2022', periods=100),
-    'Close': (pd.Series(1).append(pd.Series(range(1, 100))).cumprod()).values,
-    'Volume': (pd.Series(1).append(pd.Series(range(1, 100))).cumprod()).values
-})
-'''
+def get_data_for_symbol(symbol):
+    return df.loc[df['Symbol'] == symbol, ['Date', 'Close']]
+
+
 '''*****************************************************************************************************
 Defining the graphs
 *****************************************************************************************************'''
@@ -73,8 +72,29 @@ Defining the graphs
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/tab-1":
+        df_filtered = get_data_for_symbol('NVO')
         return dcc.Graph(
-            # ... Your code for the Historical Prices graph...
+            figure=go.Figure(
+                data=[
+                    go.Scatter(
+                        x=df_filtered['Date'], 
+                        y=df_filtered['Close'], 
+                        mode='lines',
+                        name='Historical Prices'
+                    )
+                ],
+                layout=go.Layout(
+                    title='Historical Prices',
+                    showlegend=True,
+                    legend=go.layout.Legend(
+                        x=0,
+                        y=1.0
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+                )
+            ),
+            style={'height': 300},
+            id='price-graph'
         )
     elif pathname == "/tab-2":
         return dcc.Graph(
