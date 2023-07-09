@@ -1,8 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html
-
-# Continue with the rest of your imports...
 from flask_caching import Cache
 import pandas as pd
 import plotly.graph_objs as go
@@ -10,6 +8,10 @@ import webbrowser
 
 # Continue with the rest of your code...
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+'''*****************************************************************************************************
+Defining the dashboard layout
+*****************************************************************************************************'''
 
 # Define your sidebar style
 SIDEBAR_STYLE = {
@@ -31,12 +33,15 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.H2("Stock Analysis", className="display-4"),
+        html.H2("Dashboard", className="display-4"),
         html.Hr(),
         dbc.Nav(
             [
                 dbc.NavLink("Historical Prices", href="/tab-1", active="exact"),
                 dbc.NavLink("Volume", href="/tab-2", active="exact"),
+                dbc.NavLink("Expected Shortfall", href="/tab-3", active="exact"),
+                dbc.NavLink("Value at Risk", href="/tab-4", active="exact"),
+                dbc.NavLink("Graph5", href="/tab-5", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -49,6 +54,22 @@ content = html.Div(id="page-content", style=CONTENT_STYLE)
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
+'''*****************************************************************************************************
+Retrieving the data
+*****************************************************************************************************'''
+df = pd.read_excel('historical_prices.xlsx')
+'''
+df = pd.DataFrame({
+    'Date': pd.date_range(start='1/1/2022', periods=100),
+    'Close': (pd.Series(1).append(pd.Series(range(1, 100))).cumprod()).values,
+    'Volume': (pd.Series(1).append(pd.Series(range(1, 100))).cumprod()).values
+})
+'''
+'''*****************************************************************************************************
+Defining the graphs
+*****************************************************************************************************'''
+
+
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/tab-1":
@@ -56,6 +77,18 @@ def render_page_content(pathname):
             # ... Your code for the Historical Prices graph...
         )
     elif pathname == "/tab-2":
+        return dcc.Graph(
+            # ... Your code for the Volume graph...
+        )
+    elif pathname == "/tab-3":
+        return dcc.Graph(
+            # ... Your code for the Volume graph...
+        )
+    elif pathname == "/tab-4":
+        return dcc.Graph(
+            # ... Your code for the Volume graph...
+        )
+    elif pathname == "/tab-5":
         return dcc.Graph(
             # ... Your code for the Volume graph...
         )
