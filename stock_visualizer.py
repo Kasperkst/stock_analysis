@@ -12,6 +12,20 @@ from risk_analysis import RiskAnalysisTool
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 '''*****************************************************************************************************
+Retrieving the data
+*****************************************************************************************************'''
+
+df = pd.read_excel('historical_prices.xlsx')
+def get_data_for_symbol(symbol):
+    return df.loc[df['Symbol'] == symbol, ['Date', 'Close']]
+
+'''*****************************************************************************************************
+Defining helper functions
+*****************************************************************************************************'''
+
+stock_symbols = ['NVO', 'AAPL', 'MSFT', 'TSLA', '^GSPC']
+
+'''*****************************************************************************************************
 Defining the dashboard layout
 *****************************************************************************************************'''
 
@@ -21,7 +35,7 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "16rem",
+    "width": "18rem",
     "padding": "2rem 1rem",
     "background-color": "#f8f9fa",
 }
@@ -40,7 +54,7 @@ sidebar = html.Div(
         dbc.Nav(
             [
                 dbc.NavLink("Historical Prices", href="/tab-1", active="exact"),
-                dbc.NavLink("Rolling Risk", href="/tab-2", active="exact"),
+                dbc.NavLink("Volume", href="/tab-2", active="exact"),
                 dbc.NavLink("Expected Shortfall", href="/tab-3", active="exact"),
                 dbc.NavLink("Value at Risk", href="/tab-4", active="exact"),
                 dbc.NavLink("Graph5", href="/tab-5", active="exact"),
@@ -52,31 +66,28 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
-content = html.Div(id="page-content", style=CONTENT_STYLE)
-
+#Define the output page. First a headline, then a horizontal line, then a dropdown and lastly an empty div that will be filled later using "page-content"
+content = html.Div(
+    [
+        html.H2("Graphs", className="display-4"),
+        html.Hr(),
+        html.Div(id="page-content")
+    ],
+    style=CONTENT_STYLE,
+)
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
-
-'''*****************************************************************************************************
-Retrieving the data
-*****************************************************************************************************'''
-
-
-df = pd.read_excel('historical_prices.xlsx')
-def get_data_for_symbol(symbol):
-    return df.loc[df['Symbol'] == symbol, ['Date', 'Close']]
-
-#portfolio = Portfolio(asset_prices)
-#risk_tool = RiskAnalysisTool(portfolio)
 
 '''*****************************************************************************************************
 Defining the graphs
 *****************************************************************************************************'''
 
-
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def render_page_content(pathname):
+@app.callback(
+    Output("page-content", "children"),
+    [Input("url", "pathname"), Input("stock-symbol-dropdown", "value")]
+)
+def render_page_content(pathname, stock_symbol):
     if pathname == "/tab-1":
-        df_filtered = get_data_for_symbol('NVO')
+        df_filtered = get_data_for_symbol(stock_symbol)
         return dcc.Graph(
             figure=go.Figure(
                 data=[
@@ -97,7 +108,7 @@ def render_page_content(pathname):
                     margin=go.layout.Margin(l=40, r=0, t=40, b=30)
                 )
             ),
-            style={'height': 300},
+            style={'height': 300, 'width': '100%'},
             id='price-graph'
         )
     elif pathname == "/tab-2":
